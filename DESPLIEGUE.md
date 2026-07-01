@@ -21,6 +21,8 @@ En el proyecto de Vercel: Settings → Environment Variables. Deben cargarse ah�
 | `ANTHROPIC_MODEL` | opcional, por defecto `claude-sonnet-5` | |
 | `CRON_SECRET` | cualquier cadena aleatoria | protege `/api/cron/research`; Vercel la envía sola como `Authorization: Bearer <valor>` al invocar el cron (ver sección 3) |
 | `YELP_API_KEY` | opcional, API key de Yelp Fusion | complementa la búsqueda de clientes potenciales con dirección/teléfono reales (ver sección 1b); si no está definida, el pipeline sigue funcionando solo con la IA |
+| `DASHBOARD_USER` | usuario para el login del dashboard | **definir siempre en producción** — sin esto (o sin `DASHBOARD_PASSWORD`), el sitio queda sin protección (ver sección 1c) |
+| `DASHBOARD_PASSWORD` | contraseña para el login del dashboard | ídem |
 
 **Pendiente de seguridad:** la private key que usamos en desarrollo se pegó en
 texto plano en este chat en algún momento. Antes de ir a producción, rotarla
@@ -89,6 +91,26 @@ Detalles a tener en cuenta:
 - El link de Google Maps (`buildGoogleMapsUrl`) usa la dirección real cuando
   existe, en vez de solo "empresa, estado, USA" — da un pin mucho más
   preciso para los candidatos de Yelp.
+
+### 1c. Login del dashboard
+
+`src/proxy.ts` protege todo el sitio (páginas y rutas API) con HTTP
+Basic Auth simple, comparando contra `DASHBOARD_USER`/`DASHBOARD_PASSWORD`.
+Es un login único compartido por el equipo, sin gestión de usuarios — para
+un equipo interno chico es suficiente, y evita depender de un proveedor de
+auth externo (Clerk/Auth.js) con su propia cuenta y setup. (Nota: en
+Next.js 16 el archivo `middleware.ts` se renombró a `proxy.ts` — la función
+exportada se llama `proxy`, no `middleware`.)
+
+- `/api/cron/research` queda **excluido** de este chequeo (ver `matcher` en
+  `proxy.ts`) porque ya tiene su propia protección con `CRON_SECRET`,
+  y Vercel Cron no manda credenciales Basic Auth.
+- Si `DASHBOARD_USER`/`DASHBOARD_PASSWORD` no están definidas, el proxy
+  no bloquea nada (para no dejar el dashboard inaccesible por accidente en
+  desarrollo si se olvida configurarlas) — **por eso es crítico definirlas
+  en Vercel antes de considerar el sitio "protegido" en producción**.
+- Es un login compartido, no hay botón de "cerrar sesión" — hay que cerrar
+  el navegador o borrar el permiso guardado del sitio para salir.
 
 ## 2. Google Sheets
 

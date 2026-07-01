@@ -139,9 +139,17 @@ Detalles a tener en cuenta:
 
 ## 6. Checklist rápida antes de cada deploy a producción
 
-- [ ] Todas las variables de la sección 1 cargadas en Vercel (Production).
-- [ ] Private key de Google rotada (ver nota de seguridad arriba).
-- [ ] `CRON_SECRET` definido en Vercel.
-- [ ] Hoja de Sheets de producción compartida con la cuenta de servicio.
-- [ ] Probado `/api/cron/research` a mano una vez tras el deploy.
-- [ ] Confirmado el plan de Vercel soporta la duración de función necesaria.
+- [x] Todas las variables de la sección 1 cargadas en Vercel (Production).
+- [ ] Private key de Google rotada (ver nota de seguridad arriba) — **sigue pendiente**.
+- [x] `CRON_SECRET` definido en Vercel.
+- [x] Hoja de Sheets de producción compartida con la cuenta de servicio.
+- [x] Probado `/api/cron/research` a mano una vez tras el deploy (confirmado 401 sin auth).
+- [ ] Confirmado el plan de Vercel soporta la duración de función necesaria (revisar si el plan es Hobby o Pro).
+
+## 7. Deploy en vivo
+
+- Repo: `github.com/jafethoneclick/inteligencia-comercial` (privado).
+- Producción: https://inteligencia-comercial-beta.vercel.app/
+- Confirmado post-deploy (fecha del primer deploy): homepage 200, `/api/sheets/test` ok,
+  dashboard con las 3 secciones (chat, búsqueda, reportes), `/api/chat` respondiendo con
+  datos reales, `/api/cron/research` devuelve 401 sin `Authorization`.

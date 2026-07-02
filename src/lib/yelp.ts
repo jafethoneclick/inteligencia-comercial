@@ -9,13 +9,16 @@ import type { CompanyCandidate } from "@/lib/validation";
  * consumo, no B2B).
  *
  * La API de búsqueda de Yelp centra la búsqueda en un punto + radio (no
- * permite buscar "todo el estado" de una vez), así que se usa una ciudad
- * grande representativa de cada estado como ancla.
+ * permite buscar "todo el estado" de una vez), así que se aproxima
+ * cubriendo varias ciudades grandes por estado como anclas — una sola
+ * ciudad (ej. solo Houston para TX) agota rápido los negocios que hay en
+ * ese radio, y correr la búsqueda de nuevo solo vuelve a encontrar los
+ * mismos negocios ya guardados en vez de aportar nuevos.
  */
-const CIUDAD_POR_ESTADO: Record<string, string> = {
-  TX: "Houston, TX",
-  FL: "Miami, FL",
-  CA: "Los Angeles, CA",
+const CIUDADES_POR_ESTADO: Record<string, string[]> = {
+  TX: ["Houston, TX", "Dallas, TX", "Austin, TX", "San Antonio, TX", "Fort Worth, TX", "El Paso, TX"],
+  FL: ["Miami, FL", "Orlando, FL", "Tampa, FL", "Jacksonville, FL", "Fort Lauderdale, FL"],
+  CA: ["Los Angeles, CA", "San Diego, CA", "San Francisco, CA", "Sacramento, CA", "San Jose, CA"],
 };
 
 // "trainers" cubre academias/escuelas de entrenamiento deportivo, y
@@ -33,9 +36,12 @@ type YelpBusiness = {
   categories?: { title: string }[];
 };
 
-async function searchYelpForEstado(estado: string, cantidad: number): Promise<CompanyCandidate[]> {
+async function searchYelpForLocation(
+  estado: string,
+  location: string,
+  cantidad: number
+): Promise<CompanyCandidate[]> {
   const apiKey = process.env.YELP_API_KEY;
-  const location = CIUDAD_POR_ESTADO[estado] ?? `${estado}, USA`;
   const limit = Math.max(1, Math.min(YELP_MAX_POR_LLAMADA, cantidad));
 
   const url = `https://api.yelp.com/v3/businesses/search?location=${encodeURIComponent(
@@ -72,11 +78,16 @@ export async function searchYelpClients(
   const resultados: CompanyCandidate[] = [];
 
   for (const estado of estados) {
-    try {
-      const encontrados = await searchYelpForEstado(estado, porEstado);
-      resultados.push(...encontrados);
-    } catch {
-      // Yelp es un complemento; si falla para un estado, seguimos con los demás.
+    const ciudades = CIUDADES_POR_ESTADO[estado] ?? [`${estado}, USA`];
+    const porCiudad = Math.max(1, Math.ceil(porEstado / ciudades.length));
+
+    for (const ciudad of ciudades) {
+      try {
+        const encontrados = await searchYelpForLocation(estado, ciudad, porCiudad);
+        resultados.push(...encontrados);
+      } catch {
+        // Yelp es un complemento; si falla para una ciudad, seguimos con las demás.
+      }
     }
   }
 

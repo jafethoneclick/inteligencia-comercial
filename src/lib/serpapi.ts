@@ -10,12 +10,14 @@ import type { CompanyCandidate } from "@/lib/validation";
  * solo aplica a "clientes" (es el espejo de yelp.ts).
  *
  * La API de Google Local se ancla en una ciudad, no en un estado completo,
- * así que se usa la misma ciudad representativa por estado que yelp.ts.
+ * así que se cubren varias ciudades por estado (igual que yelp.ts), pero
+ * con una lista más corta: SerpApi solo da 250 búsquedas gratis/mes (vs.
+ * Yelp, que da 500/día), así que cada ciudad extra cuesta cuota real.
  */
-const CIUDAD_POR_ESTADO: Record<string, string> = {
-  TX: "Houston, TX",
-  FL: "Miami, FL",
-  CA: "Los Angeles, CA",
+const CIUDADES_POR_ESTADO: Record<string, string[]> = {
+  TX: ["Houston, TX", "Dallas, TX", "Austin, TX"],
+  FL: ["Miami, FL", "Orlando, FL", "Tampa, FL"],
+  CA: ["Los Angeles, CA", "San Diego, CA", "San Francisco, CA"],
 };
 
 const QUERY = "sporting goods wholesale distributor";
@@ -32,9 +34,12 @@ type SerpApiLocalResult = {
   phone?: string;
 };
 
-async function searchSerpApiForEstado(estado: string, cantidad: number): Promise<CompanyCandidate[]> {
+async function searchSerpApiForLocation(
+  estado: string,
+  location: string,
+  cantidad: number
+): Promise<CompanyCandidate[]> {
   const apiKey = process.env.SERPAPI_API_KEY;
-  const location = CIUDAD_POR_ESTADO[estado] ?? `${estado}, USA`;
   const num = Math.max(1, Math.min(SERPAPI_MAX_POR_LLAMADA, cantidad));
 
   const url = `https://serpapi.com/search.json?engine=google_local&q=${encodeURIComponent(
@@ -73,11 +78,16 @@ export async function searchSerpApiProveedores(
   const resultados: CompanyCandidate[] = [];
 
   for (const estado of estados) {
-    try {
-      const encontrados = await searchSerpApiForEstado(estado, porEstado);
-      resultados.push(...encontrados);
-    } catch {
-      // SerpApi es un complemento; si falla para un estado, seguimos con los demás.
+    const ciudades = CIUDADES_POR_ESTADO[estado] ?? [`${estado}, USA`];
+    const porCiudad = Math.max(1, Math.ceil(porEstado / ciudades.length));
+
+    for (const ciudad of ciudades) {
+      try {
+        const encontrados = await searchSerpApiForLocation(estado, ciudad, porCiudad);
+        resultados.push(...encontrados);
+      } catch {
+        // SerpApi es un complemento; si falla para una ciudad, seguimos con las demás.
+      }
     }
   }
 

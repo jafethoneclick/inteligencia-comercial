@@ -6,11 +6,15 @@ import type { ResearchParams } from "@/lib/research";
 export const maxDuration = 300;
 
 const ESTADOS: string[] = ["TX", "FL", "CA"];
-// Con 3 estados, researchWithGroq reparte esto entre estados y lo topa en 4
-// por llamada (el máximo seguro sin truncar la respuesta) — por eso 12 es el
-// valor "completo": 4 por estado × 3 estados. Subir más de 12 no trae más
-// resultados con Groq, solo alarga la corrida sin efecto real.
-const CANTIDAD_POR_TIPO = 12;
+// Desde que OSM (src/lib/osm.ts) aporta volumen gratis sin límite de cuota,
+// este número ya no está atado al tope de 4/llamada de Groq (ver
+// AI_CANTIDAD_MAX en pipeline.ts, que sigue capando la parte de IA aparte).
+// Se mantiene moderado (no en los 1000+ que soporta el motor) porque esta
+// corrida es automática y sin supervisión cada 3 días — generar cientos de
+// filas nuevas sin que nadie las revise no es deseable. El volumen grande
+// (1000+) queda para cuando el usuario lo pide explícitamente desde el
+// formulario o el chat.
+const CANTIDAD_POR_TIPO = 90;
 const DIAS_ENTRE_CORRIDAS = 3;
 
 /**

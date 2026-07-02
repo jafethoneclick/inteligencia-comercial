@@ -134,7 +134,14 @@ export async function buscarNuevasEmpresas(args: BuscarNuevasEmpresasArgs): Prom
   const estados = args.estados?.length ? args.estados : DEFAULT_ESTADOS;
   try {
     const resultado = await runResearchPipeline(
-      { tipo: args.tipo, estados, cantidad: args.cantidad ?? 4, criterios: args.criterios },
+      {
+        tipo: args.tipo,
+        estados,
+        // Clamp de seguridad: si el modelo pasa un valor absurdo por error
+        // en el tool-call, no debe traducirse en una corrida descontrolada.
+        cantidad: Math.min(args.cantidad ?? 4, 1200),
+        criterios: args.criterios,
+      },
       "manual"
     );
     return JSON.stringify(resultado);

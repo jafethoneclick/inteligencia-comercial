@@ -209,6 +209,54 @@ export async function updateRow(
   });
 }
 
+/** Igual que appendRow pero para muchas filas a la vez (una sola llamada HTTP). */
+export async function appendRows(
+  tabName: SheetTabName,
+  records: Record<string, string>[]
+): Promise<void> {
+  if (records.length === 0) return;
+
+  const sheets = getSheetsClient();
+  const spreadsheetId = getSpreadsheetId();
+  const headers = TAB_HEADERS[tabName];
+  const values = records.map((record) => headers.map((h) => record[h] ?? ""));
+
+  await sheets.spreadsheets.values.append({
+    spreadsheetId,
+    range: `${tabName}!A1`,
+    valueInputOption: "RAW",
+    insertDataOption: "INSERT_ROWS",
+    requestBody: { values },
+  });
+}
+
+/**
+ * Igual que updateRow pero para muchas filas a la vez (una sola llamada
+ * HTTP vía spreadsheets.values.batchUpdate, NO spreadsheets.batchUpdate —
+ * ese es para cambios estructurales como crear pestañas, ver
+ * ensureSheetsReady).
+ */
+export async function batchUpdateRows(
+  tabName: SheetTabName,
+  updates: { sheetRow: number; record: Record<string, string> }[]
+): Promise<void> {
+  if (updates.length === 0) return;
+
+  const sheets = getSheetsClient();
+  const spreadsheetId = getSpreadsheetId();
+  const headers = TAB_HEADERS[tabName];
+
+  const data: sheets_v4.Schema$ValueRange[] = updates.map(({ sheetRow, record }) => ({
+    range: `${tabName}!A${sheetRow}:${columnLetter(headers.length)}${sheetRow}`,
+    values: [headers.map((h) => record[h] ?? "")],
+  }));
+
+  await sheets.spreadsheets.values.batchUpdate({
+    spreadsheetId,
+    requestBody: { valueInputOption: "RAW", data },
+  });
+}
+
 function columnLetter(count: number): string {
   let letter = "";
   let n = count;

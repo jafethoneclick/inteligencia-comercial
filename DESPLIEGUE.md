@@ -112,6 +112,70 @@ exportada se llama `proxy`, no `middleware`.)
 - Es un login compartido, no hay botón de "cerrar sesión" — hay que cerrar
   el navegador o borrar el permiso guardado del sitio para salir.
 
+### 1d. OpenStreetMap (Overpass API) como fuente de volumen (proveedores y clientes)
+
+`src/lib/osm.ts` consulta la Overpass API pública
+(`https://overpass-api.de/api/interpreter`) para traer negocios reales
+etiquetados en OpenStreetMap dentro de TX/FL/CA, y se agrega a los
+candidatos de la corrida junto con la IA y Yelp (ver `pipeline.ts`).
+
+**No requiere ninguna API key ni variable de entorno** — a diferencia de
+todas las demás integraciones de este proyecto (Groq/Anthropic, Yelp,
+Google Sheets), Overpass es un servicio público y gratuito sin
+autenticación. Corre siempre, para ambos tipos (`proveedores` y
+`clientes`), sin ningún flag para activarlo/desactivarlo.
+
+- Es la fuente principal de *volumen*: la IA está limitada a un máximo bajo
+  por corrida (`AI_CANTIDAD_MAX` en `pipeline.ts`) porque cada llamada a
+  Groq/Anthropic cuesta cuota y tiempo; OSM puede devolver cientos de
+  resultados por estado en una sola consulta sin ese costo. Por eso el
+  input de "cantidad" del formulario manual soporta hasta 1200.
+- Cobertura desigual por diseño: para `clientes` (tiendas deportivas,
+  gimnasios, clubes) OSM tiene etiquetas específicas y bien establecidas
+  (`shop=sports`, `shop=outdoor`, `leisure=fitness_centre`,
+  `leisure=sports_centre`, `club=sport`) y suele aportar muchos resultados.
+  Para `proveedores` (mayoristas/fabricantes B2B) la cobertura es mucho más
+  débil — la mayoría de mayoristas no se mapean en OSM porque no son
+  lugares que el público visite — así que ese branch (`shop=wholesale`,
+  `office=company`) puede devolver pocos o ningún resultado. Esto es
+  esperado: la IA sigue siendo la fuente principal/confiable para
+  proveedores, OSM ahí es solo un extra oportunista.
+- Muchos elementos de OSM no tienen `website` (a diferencia de la IA, que
+  siempre intenta encontrar uno) — `validation.ts` ya maneja esto
+  aceptando candidatos sin sitio web si tienen `direccion`, igual que con
+  Yelp. A diferencia de Yelp, OSM sí trae `email` en algunos casos, cuando
+  el mapeador lo cargó.
+- El servidor público de Overpass es compartido y puede estar lento o dar
+  rate limit en horas pico. `osm.ts` manda `[timeout:60]` en cada query y
+  atrapa errores por estado (si un estado falla, se sigue con los demás) —
+  nunca bloquea toda la corrida, mismo patrón de resiliencia que Yelp.
+- Si en el futuro hace falta más volumen/confiabilidad, la alternativa es
+  correr una instancia propia de Overpass (Docker) o usar un mirror privado
+  de pago — no hecho por ahora porque el servidor público ya alcanza el
+  volumen pedido (~1000+/corrida) sin ningún costo ni setup.
+
+### 1e. SerpApi como fuente complementaria para proveedores
+
+`src/lib/serpapi.ts` complementa la búsqueda de **proveedores**
+(mayoristas/fabricantes B2B) con resultados reales de Google Local vía
+SerpApi. Es el espejo de Yelp (que solo aplica a clientes): a diferencia de
+OSM, que solo encuentra negocios con los tags fijos de OpenStreetMap,
+SerpApi busca con texto libre (`"sporting goods wholesale distributor"`),
+así que encuentra distribuidores que sí tienen presencia local pero nunca
+se mapearon en OSM — llenando el hueco que OSM deja en proveedores.
+
+- Opcional: solo corre si `SERPAPI_API_KEY` está definida. Si no, el
+  pipeline sigue funcionando igual con IA + OSM.
+- 250 búsquedas gratis/mes en el plan free de SerpApi. Como se pide una
+  búsqueda por estado (no por candidato, igual que Yelp/OSM), el uso real
+  de este proyecto debería quedar dentro del tier gratis casi siempre.
+- Igual que Yelp, no da `email` ni `sitio_web` (confirmado probando en
+  vivo: el endpoint de Google Local no incluye el sitio propio del
+  negocio) — solo nombre, dirección, categoría y teléfono. `validation.ts`
+  acepta el candidato igual porque sí hay dirección.
+- Nunca bloquea la corrida: si falla para un estado (rate limit, key
+  inválida), se atrapa el error y se sigue con los demás.
+
 ## 2. Google Sheets
 
 - La hoja de cálculo debe estar compartida con el email de la cuenta de
@@ -151,6 +215,15 @@ exportada se llama `proxy`, no `middleware`.)
   el proyecto está en Hobby, el cron o las búsquedas grandes pueden cortarse
   a mitad. Si pasa eso: subir de plan, o bajar `cantidad`/número de estados
   por corrida para que termine más rápido.
+- Desde que OSM (ver sección 1d) permite pedir cientos/miles de candidatos
+  por corrida, `pipeline.ts` escribe en Sheets en **lote** (`appendRows` /
+  `batchUpdateRows`: una sola llamada HTTP para todas las filas nuevas, otra
+  para todas las actualizadas) en vez de una llamada por fila. Esto es lo
+  que hace viable correr a 1000+ candidatos sin pasarse de la cuota de la
+  API de Sheets (300 req/min por proyecto, 60/min por usuario) ni del
+  `maxDuration`. La validación de candidatos también corre con concurrencia
+  limitada (`mapWithConcurrency`, 15 en paralelo) en vez de secuencial, por
+  la misma razón.
 
 ## 5. Cosas que NO aplican en producción
 

@@ -89,11 +89,11 @@ export function ResearchForm() {
           <input
             type="number"
             min={1}
-            max={25}
+            max={1200}
             value={cantidad}
             onChange={(e) => setCantidad(Number(e.target.value))}
-            className="w-20 rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            title="Cantidad de empresas a buscar"
+            className="w-24 rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            title="Cantidad de empresas a buscar (valores altos tardan más)"
           />
         </div>
 

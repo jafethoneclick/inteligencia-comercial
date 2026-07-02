@@ -10,7 +10,7 @@ type ResultSummary = {
   nuevos?: number;
   actualizados?: number;
   totalEncontrados?: number;
-  invalidos?: { empresa: string; issues: string[] }[];
+  invalidos?: { company: string; issues: string[] }[];
   error?: string;
 };
 
@@ -128,7 +128,7 @@ export function ResearchForm() {
               {result.actualizados}
               {result.invalidos && result.invalidos.length > 0 && (
                 <div className="mt-1 text-xs opacity-80">
-                  Descartadas por validación: {result.invalidos.map((i) => i.empresa).join(", ")}
+                  Descartadas por validación: {result.invalidos.map((i) => i.company).join(", ")}
                 </div>
               )}
             </>

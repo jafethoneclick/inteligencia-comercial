@@ -72,32 +72,32 @@ export function CompanyTable({
             ) : (
               filteredRows.map((row) => (
                 <tr
-                  key={row.id || row.empresa}
+                  key={row.id || row.company}
                   className="border-b border-zinc-100 last:border-0 dark:border-zinc-900"
                 >
-                  <Td className="font-medium">{row.empresa}</Td>
-                  <Td>{row.estado}</Td>
+                  <Td className="font-medium">{row.company}</Td>
+                  <Td>{row.state}</Td>
                   <Td>
-                    {row.sitio_web ? (
+                    {row.website ? (
                       <a
-                        href={row.sitio_web}
+                        href={row.website}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline dark:text-blue-400"
                       >
-                        {row.sitio_web}
+                        {row.website}
                       </a>
                     ) : (
                       "-"
                     )}
                   </Td>
                   <Td>{row.email || "-"}</Td>
-                  <Td>{row.telefono || "-"}</Td>
-                  <Td>{row.redes_sociales || "-"}</Td>
-                  <Td>{row.categoria || "-"}</Td>
-                  <Td>{row.direccion || "-"}</Td>
-                  <Td>{row.fuente || "-"}</Td>
-                  <Td>{row.ultima_actualizacion || "-"}</Td>
+                  <Td>{row.phone || "-"}</Td>
+                  <Td>{row.social_media || "-"}</Td>
+                  <Td>{row.category || "-"}</Td>
+                  <Td>{row.address || "-"}</Td>
+                  <Td>{row.source || "-"}</Td>
+                  <Td>{row.updated_at || "-"}</Td>
                   <Td>
                     {row.google_maps_url ? (
                       <a

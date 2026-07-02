@@ -23,7 +23,7 @@ const SERPAPI_MAX_POR_LLAMADA = 20; // tamaño de página típico de Google Loca
 
 // SerpApi Local no da el sitio web propio del negocio en la respuesta
 // básica (confirmado probando en vivo) — solo nombre, dirección, categoría
-// y teléfono. Igual que Yelp, sitio_web queda vacío; validation.ts acepta
+// y teléfono. Igual que Yelp, website queda vacío; validation.ts acepta
 // el candidato igual porque sí hay dirección.
 type SerpApiLocalResult = {
   title?: string;
@@ -53,15 +53,15 @@ async function searchSerpApiForEstado(estado: string, cantidad: number): Promise
   return results
     .filter((r) => r.title)
     .map((r) => ({
-      empresa: r.title as string,
-      estado,
-      sitio_web: "",
+      company: r.title as string,
+      state: estado,
+      website: "",
       email: "",
-      telefono: r.phone ?? "",
-      redes_sociales: "",
-      categoria: r.type ?? "",
-      fuente: `https://www.google.com/search?q=${encodeURIComponent(r.title as string)}`,
-      direccion: r.address ?? "",
+      phone: r.phone ?? "",
+      social_media: "",
+      category: r.type ?? "",
+      source: `https://www.google.com/search?q=${encodeURIComponent(r.title as string)}`,
+      address: r.address ?? "",
     }));
 }
 

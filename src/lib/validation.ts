@@ -5,15 +5,15 @@
  */
 
 export type CompanyCandidate = {
-  empresa: string;
-  estado: string;
-  sitio_web: string;
+  company: string;
+  state: string;
+  website: string;
   email: string;
-  telefono: string;
-  redes_sociales: string; // URLs separadas por coma
-  categoria: string;
-  fuente: string;
-  direccion?: string; // dirección física completa, cuando se conoce (ej. vía Yelp)
+  phone: string;
+  social_media: string; // URLs separadas por coma
+  category: string;
+  source: string;
+  address?: string; // dirección física completa, cuando se conoce (ej. vía Yelp)
 };
 
 export type ValidationResult = {
@@ -29,18 +29,18 @@ const KNOWN_SOCIAL_DOMAINS = ["linkedin.com", "facebook.com", "instagram.com", "
 export async function validateCandidate(candidate: CompanyCandidate): Promise<ValidationResult> {
   const issues: string[] = [];
 
-  if (!candidate.empresa?.trim()) {
+  if (!candidate.company?.trim()) {
     issues.push("Falta el nombre de la empresa");
   }
 
-  if (!candidate.estado || !["TX", "FL", "CA"].includes(candidate.estado.toUpperCase())) {
-    issues.push(`Estado fuera de alcance: "${candidate.estado}"`);
+  if (!candidate.state || !["TX", "FL", "CA"].includes(candidate.state.toUpperCase())) {
+    issues.push(`Estado fuera de alcance: "${candidate.state}"`);
   }
 
-  if (candidate.sitio_web) {
-    const domainOk = await isDomainReachable(candidate.sitio_web);
-    if (!domainOk) issues.push(`El sitio web no responde: ${candidate.sitio_web}`);
-  } else if (!candidate.direccion?.trim()) {
+  if (candidate.website) {
+    const domainOk = await isDomainReachable(candidate.website);
+    if (!domainOk) issues.push(`El sitio web no responde: ${candidate.website}`);
+  } else if (!candidate.address?.trim()) {
     // Sin sitio web, aceptamos el candidato si al menos hay una dirección
     // física verificable (ej. proveniente de Yelp), que ya es evidencia de
     // que el negocio existe.
@@ -51,12 +51,12 @@ export async function validateCandidate(candidate: CompanyCandidate): Promise<Va
     issues.push(`Email con formato inválido: ${candidate.email}`);
   }
 
-  if (candidate.telefono && !US_PHONE_REGEX.test(candidate.telefono)) {
-    issues.push(`Teléfono con formato inválido: ${candidate.telefono}`);
+  if (candidate.phone && !US_PHONE_REGEX.test(candidate.phone)) {
+    issues.push(`Teléfono con formato inválido: ${candidate.phone}`);
   }
 
-  if (candidate.redes_sociales) {
-    const urls = candidate.redes_sociales.split(",").map((u) => u.trim()).filter(Boolean);
+  if (candidate.social_media) {
+    const urls = candidate.social_media.split(",").map((u) => u.trim()).filter(Boolean);
     for (const url of urls) {
       if (!KNOWN_SOCIAL_DOMAINS.some((domain) => url.includes(domain))) {
         issues.push(`Red social no reconocida como oficial: ${url}`);

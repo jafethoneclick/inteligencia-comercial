@@ -49,15 +49,15 @@ async function searchYelpForEstado(estado: string, cantidad: number): Promise<Co
   const businesses: YelpBusiness[] = data.businesses ?? [];
 
   return businesses.map((b) => ({
-    empresa: b.name,
-    estado,
-    sitio_web: "",
+    company: b.name,
+    state: estado,
+    website: "",
     email: "",
-    telefono: b.display_phone || b.phone || "",
-    redes_sociales: "",
-    categoria: (b.categories ?? []).map((c) => c.title).join(", "),
-    fuente: b.url ?? "https://www.yelp.com",
-    direccion: (b.location?.display_address ?? []).join(", "),
+    phone: b.display_phone || b.phone || "",
+    social_media: "",
+    category: (b.categories ?? []).map((c) => c.title).join(", "),
+    source: b.url ?? "https://www.yelp.com",
+    address: (b.location?.display_address ?? []).join(", "),
   }));
 }
 

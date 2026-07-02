@@ -112,15 +112,15 @@ function elementToCandidate(el: OverpassElement, estado: string): CompanyCandida
   const direccion = buildDireccion(tags);
 
   return {
-    empresa,
-    estado,
-    sitio_web: tags.website ?? tags["contact:website"] ?? "",
+    company: empresa,
+    state: estado,
+    website: tags.website ?? tags["contact:website"] ?? "",
     email: tags.email ?? tags["contact:email"] ?? "",
-    telefono: tags.phone ?? tags["contact:phone"] ?? "",
-    redes_sociales: "",
-    categoria,
-    fuente: `https://www.openstreetmap.org/${el.type}/${el.id}`,
-    direccion: direccion || undefined,
+    phone: tags.phone ?? tags["contact:phone"] ?? "",
+    social_media: "",
+    category: categoria,
+    source: `https://www.openstreetmap.org/${el.type}/${el.id}`,
+    address: direccion || undefined,
   };
 }
 

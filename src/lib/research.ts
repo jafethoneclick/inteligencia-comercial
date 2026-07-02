@@ -11,14 +11,14 @@ export type ResearchParams = {
 };
 
 const candidateSchema = z.object({
-  empresa: z.string().min(1),
-  estado: z.string().min(2),
-  sitio_web: z.string().default(""),
+  company: z.string().min(1),
+  state: z.string().min(2),
+  website: z.string().default(""),
   email: z.string().default(""),
-  telefono: z.string().default(""),
-  redes_sociales: z.string().default(""),
-  categoria: z.string().default(""),
-  fuente: z.string().default(""),
+  phone: z.string().default(""),
+  social_media: z.string().default(""),
+  category: z.string().default(""),
+  source: z.string().default(""),
 });
 /**
  * El pipeline soporta dos proveedores de IA con búsqueda web integrada:
@@ -30,27 +30,27 @@ const candidateSchema = z.object({
 function buildPrompt(params: ResearchParams): string {
   const { tipo, estados, criterios, cantidad = 8 } = params;
 
-  const objetivo =
+  const target =
     tipo === "proveedores"
-      ? "proveedores/fabricantes/mayoristas de artículos deportivos"
-      : "clientes potenciales que podrían comprar artículos deportivos al por mayor (tiendas deportivas, gimnasios, clubes, escuelas)";
+      ? "suppliers/manufacturers/wholesalers of sporting goods"
+      : "potential customers who could buy sporting goods in bulk (sporting goods stores, gyms, clubs, schools)";
 
-  return `Eres un asistente de inteligencia comercial. Busca en la web ${cantidad} empresas reales de ${objetivo}, ubicadas en: ${estados.join(", ")} (Estados Unidos).
-${criterios ? `Criterio adicional del usuario: ${criterios}` : ""}
+  return `You are a commercial intelligence assistant. Search the web for ${cantidad} real companies that are ${target}, located in: ${estados.join(", ")} (United States).
+${criterios ? `Additional user criteria: ${criterios}` : ""}
 
-Para cada empresa, visita su sitio web oficial y extrae solo información pública verificable: nombre, estado (código de 2 letras: TX, FL o CA), sitio web oficial, email de contacto público (si existe), teléfono público (si existe), URLs de redes sociales oficiales (LinkedIn/Facebook/Instagram, verificadas contra el dominio oficial), categoría/rubro específico, y la URL fuente donde confirmaste la información.
+For each company, visit its official website and extract only verifiable public information: name, state (2-letter code: TX, FL, or CA), official website, public contact email (if any), public phone number (if any), official social media URLs (LinkedIn/Facebook/Instagram, verified against the official domain), specific category/industry, and the source URL where you confirmed the information.
 
-No inventes datos. Si no encuentras un campo, déjalo como cadena vacía "".
+Do not invent data. If a field can't be found, leave it as an empty string "".
 
-Responde ÚNICAMENTE con un array JSON válido (sin texto antes ni después, sin bloques de markdown), con este formato exacto por cada empresa:
-[{"empresa": "", "estado": "", "sitio_web": "", "email": "", "telefono": "", "redes_sociales": "", "categoria": "", "fuente": ""}]`;
+Respond ONLY with all text content in English, and ONLY with a valid JSON array (no text before or after, no markdown code blocks), using this exact format per company:
+[{"company": "", "state": "", "website": "", "email": "", "phone": "", "social_media": "", "category": "", "source": ""}]`;
 }
 
 /**
  * Extrae los objetos JSON completos de nivel superior de un texto (que puede
  * estar truncado, sin "]" de cierre). Cuenta llaves respetando si está
  * dentro de un string (para no confundirse con "{"/"}" dentro de valores,
- * ej. redes_sociales a veces viene como un objeto anidado). Se usa como
+ * ej. social_media a veces viene como un objeto anidado). Se usa como
  * respaldo cuando el modelo corta la respuesta a mitad del array.
  */
 function extractTopLevelObjects(text: string): string[] {

@@ -24,7 +24,9 @@ Reglas importantes:
 - Si una herramienta no encuentra nada, dilo claramente en vez de inventar.
 - Si el usuario pide algo que ninguna herramienta puede hacer, dilo directamente en un mensaje de texto — no llames herramientas en un loop tratando de adivinar cómo cumplir el pedido.
 - No llames la misma herramienta más de 2 veces seguidas con argumentos parecidos; si no funciona, explica el problema en texto.
-- Responde en español, de forma clara y concisa.`;
+- Los datos guardados (nombre de empresa, categoría, dirección, etc.) están en inglés — puedes leerlos y citarlos tal cual, sin traducirlos.
+- El usuario puede escribirte en español o en inglés indistintamente; entiende ambos igual de bien.
+- Responde SIEMPRE en español, de forma clara y concisa, sin importar en qué idioma te haya escrito el usuario.`;
 
 const MAX_TOOL_ITERATIONS = 6;
 

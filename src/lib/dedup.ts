@@ -35,21 +35,21 @@ export function normalizePhone(phone: string): string {
  * teléfono o nombre normalizado), o null si no hay coincidencia.
  */
 export function findDuplicate(
-  candidate: { empresa: string; sitio_web?: string; telefono?: string },
+  candidate: { company: string; website?: string; phone?: string },
   existingRows: ExistingRow[]
 ): ExistingRow | null {
-  const candidateDomain = extractDomain(candidate.sitio_web ?? "");
-  const candidatePhone = normalizePhone(candidate.telefono ?? "");
-  const candidateName = normalizeCompanyName(candidate.empresa);
+  const candidateDomain = extractDomain(candidate.website ?? "");
+  const candidatePhone = normalizePhone(candidate.phone ?? "");
+  const candidateName = normalizeCompanyName(candidate.company);
 
   for (const row of existingRows) {
-    const rowDomain = extractDomain(row.sitio_web ?? "");
+    const rowDomain = extractDomain(row.website ?? "");
     if (candidateDomain && rowDomain && candidateDomain === rowDomain) return row;
 
-    const rowPhone = normalizePhone(row.telefono ?? "");
+    const rowPhone = normalizePhone(row.phone ?? "");
     if (candidatePhone && rowPhone && candidatePhone === rowPhone) return row;
 
-    const rowName = normalizeCompanyName(row.empresa ?? "");
+    const rowName = normalizeCompanyName(row.company ?? "");
     if (candidateName && rowName && candidateName === rowName) return row;
   }
 

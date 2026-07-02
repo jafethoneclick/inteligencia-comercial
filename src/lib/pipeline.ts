@@ -20,7 +20,7 @@ export type PipelineResult = {
   ok: true;
   nuevos: number;
   actualizados: number;
-  invalidos: { empresa: string; issues: string[] }[];
+  invalidos: { company: string; issues: string[] }[];
   totalEncontrados: number;
 };
 
@@ -106,11 +106,11 @@ export async function runResearchPipeline(
       async (candidate) => ({ candidate, validation: await validateCandidate(candidate) })
     );
 
-    const invalidos: { empresa: string; issues: string[] }[] = [];
+    const invalidos: { company: string; issues: string[] }[] = [];
     const validatedCandidates: CompanyCandidate[] = [];
     for (const { candidate, validation } of validationResults) {
       if (!validation.valid) {
-        invalidos.push({ empresa: candidate.empresa, issues: validation.issues });
+        invalidos.push({ company: candidate.company, issues: validation.issues });
       } else {
         validatedCandidates.push(candidate);
       }
@@ -128,7 +128,7 @@ export async function runResearchPipeline(
 
     for (const candidate of validatedCandidates) {
       const now = new Date().toISOString();
-      const googleMapsUrl = buildGoogleMapsUrl(candidate.empresa, candidate.estado, candidate.direccion);
+      const googleMapsUrl = buildGoogleMapsUrl(candidate.company, candidate.state, candidate.address);
 
       const duplicateInSheet = findDuplicate(candidate, existingRowsOnly);
 
@@ -140,13 +140,13 @@ export async function runResearchPipeline(
             record: {
               ...duplicateInSheet,
               ...candidate,
-              fecha_validacion: duplicateInSheet.fecha_validacion || now,
-              ultima_actualizacion: now,
+              validated_at: duplicateInSheet.validated_at || now,
+              updated_at: now,
               google_maps_url: googleMapsUrl,
             },
           });
           actualizados++;
-          detalle.push(`Actualizado: ${candidate.empresa}`);
+          detalle.push(`Actualizado: ${candidate.company}`);
         }
         continue;
       }
@@ -162,29 +162,29 @@ export async function runResearchPipeline(
       const record = {
         id: crypto.randomUUID(),
         ...candidate,
-        fecha_validacion: now,
-        ultima_actualizacion: now,
+        validated_at: now,
+        updated_at: now,
         google_maps_url: googleMapsUrl,
       };
       newRowsToAppend.push(record);
       seenThisRun.push(record);
       nuevos++;
-      detalle.push(`Nuevo: ${candidate.empresa}`);
+      detalle.push(`Nuevo: ${candidate.company}`);
     }
 
     await appendRows(targetTab, newRowsToAppend);
     await batchUpdateRows(targetTab, updatesToApply);
 
     await appendRow(SHEET_TABS.logInvestigaciones, {
-      fecha: startedAt,
-      tipo: tipoEjecucion,
-      criterios: `${params.tipo} | ${params.estados.join(",")}${
+      date: startedAt,
+      type: tipoEjecucion,
+      criteria: `${params.tipo} | ${params.estados.join(",")}${
         params.criterios ? " | " + params.criterios : ""
       }`,
-      nuevos: String(nuevos),
-      actualizados: String(actualizados),
-      estado_ejecucion: "ok",
-      detalle: detalle.join("; ") || "Sin cambios",
+      new_count: String(nuevos),
+      updated_count: String(actualizados),
+      run_status: "ok",
+      detail: detalle.join("; ") || "Sin cambios",
     });
 
     return {
@@ -199,13 +199,13 @@ export async function runResearchPipeline(
 
     try {
       await appendRow(SHEET_TABS.logInvestigaciones, {
-        fecha: startedAt,
-        tipo: tipoEjecucion,
-        criterios: `${params.tipo} | ${params.estados.join(",")}`,
-        nuevos: "0",
-        actualizados: "0",
-        estado_ejecucion: "error",
-        detalle: message,
+        date: startedAt,
+        type: tipoEjecucion,
+        criteria: `${params.tipo} | ${params.estados.join(",")}`,
+        new_count: "0",
+        updated_count: "0",
+        run_status: "error",
+        detail: message,
       });
     } catch {
       // si ni el log se pudo escribir, seguimos y devolvemos el error original igual

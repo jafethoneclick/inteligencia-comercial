@@ -43,7 +43,7 @@ function contarPorEstado(filas: Record<string, string>[]): Record<string, number
   const conteo: Record<string, number> = {};
   for (const estado of ESTADOS) conteo[estado] = 0;
   for (const fila of filas) {
-    const estado = (fila.estado || "").toUpperCase();
+    const estado = (fila.state || "").toUpperCase();
     if (estado in conteo) conteo[estado]++;
   }
   return conteo;
@@ -85,13 +85,13 @@ function ReportDocument({ titulo, subtitulo, secciones }: ReportParams) {
                 ) : (
                   seccion.filas.map((fila, j) => (
                     <View key={j} style={styles.row}>
-                      <Text style={styles.cellEmpresa}>{fila.empresa || "-"}</Text>
-                      <Text style={styles.cellEstado}>{fila.estado || "-"}</Text>
-                      <Text style={styles.cellWeb}>{fila.sitio_web || "-"}</Text>
+                      <Text style={styles.cellEmpresa}>{fila.company || "-"}</Text>
+                      <Text style={styles.cellEstado}>{fila.state || "-"}</Text>
+                      <Text style={styles.cellWeb}>{fila.website || "-"}</Text>
                       <Text style={styles.cellEmail}>{fila.email || "-"}</Text>
-                      <Text style={styles.cellTelefono}>{fila.telefono || "-"}</Text>
-                      <Text style={styles.cellCategoria}>{fila.categoria || "-"}</Text>
-                      <Text style={styles.cellFuente}>{fila.fuente || "-"}</Text>
+                      <Text style={styles.cellTelefono}>{fila.phone || "-"}</Text>
+                      <Text style={styles.cellCategoria}>{fila.category || "-"}</Text>
+                      <Text style={styles.cellFuente}>{fila.source || "-"}</Text>
                     </View>
                   ))
                 )}

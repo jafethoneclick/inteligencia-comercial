@@ -37,8 +37,8 @@ export async function GET(request: Request) {
   try {
     const log = await getRows(SHEET_TABS.logInvestigaciones);
     const ultimaAutomatica = log
-      .filter((r) => r.tipo === "automatica" && r.fecha)
-      .map((r) => new Date(r.fecha).getTime())
+      .filter((r) => r.type === "automatica" && r.date)
+      .map((r) => new Date(r.date).getTime())
       .filter((t) => !Number.isNaN(t))
       .sort((a, b) => b - a)[0];
 

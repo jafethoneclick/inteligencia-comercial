@@ -48,7 +48,7 @@ export async function consultarEmpresas(args: ConsultarEmpresasArgs): Promise<st
   let filtradas = rows;
   if (args.estado) {
     const estado = args.estado.toUpperCase();
-    filtradas = filtradas.filter((r) => (r.estado || "").toUpperCase() === estado);
+    filtradas = filtradas.filter((r) => (r.state || "").toUpperCase() === estado);
   }
   if (args.texto) {
     // Coincide si CUALQUIER palabra del texto aparece en algún campo (no la
@@ -66,15 +66,15 @@ export async function consultarEmpresas(args: ConsultarEmpresasArgs): Promise<st
 
   const total = filtradas.length;
   const empresas = filtradas.slice(0, MAX_RESULTADOS).map((r) => ({
-    empresa: r.empresa,
-    estado: r.estado,
-    sitio_web: r.sitio_web,
+    company: r.company,
+    state: r.state,
+    website: r.website,
     email: r.email,
-    telefono: r.telefono,
-    categoria: r.categoria,
-    redes_sociales: r.redes_sociales,
+    phone: r.phone,
+    category: r.category,
+    social_media: r.social_media,
     google_maps_url: r.google_maps_url,
-    ultima_actualizacion: r.ultima_actualizacion,
+    updated_at: r.updated_at,
   }));
 
   return JSON.stringify({

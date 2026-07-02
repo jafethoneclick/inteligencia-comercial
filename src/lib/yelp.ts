@@ -18,7 +18,10 @@ const CIUDAD_POR_ESTADO: Record<string, string> = {
   CA: "Los Angeles, CA",
 };
 
-const CATEGORIAS = "sportgoods,gyms,sportsclubs";
+// "trainers" cubre academias/escuelas de entrenamiento deportivo, y
+// "leisure_centers" cubre complejos y campos deportivos — ambos categorías
+// oficiales de la taxonomía de Yelp (yelp.com/developers/documentation).
+const CATEGORIAS = "sportgoods,gyms,sportsclubs,trainers,leisure_centers";
 const YELP_MAX_POR_LLAMADA = 10;
 
 type YelpBusiness = {

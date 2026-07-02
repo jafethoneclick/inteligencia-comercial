@@ -19,7 +19,8 @@ const TAGS_CLIENTES: readonly (readonly [string, string])[] = [
   ["shop", "outdoor"],
   ["leisure", "fitness_centre"],
   ["leisure", "sports_centre"],
-  ["club", "sport"],
+  ["leisure", "pitch"], // campos/canchas deportivas
+  ["club", "sport"], // incluye la mayoría de academias deportivas registradas como club
 ];
 
 const TAGS_PROVEEDORES: readonly (readonly [string, string])[] = [

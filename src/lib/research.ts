@@ -33,7 +33,7 @@ function buildPrompt(params: ResearchParams): string {
   const target =
     tipo === "proveedores"
       ? "suppliers/manufacturers/wholesalers of sporting goods"
-      : "potential customers who could buy sporting goods in bulk (sporting goods stores, gyms, clubs, schools)";
+      : "potential customers who could buy sporting goods in bulk (sporting goods stores, gyms, clubs, schools, sports academies, sports fields/complexes)";
 
   return `You are a commercial intelligence assistant. Search the web for ${cantidad} real companies that are ${target}, located in: ${estados.join(", ")} (United States).
 ${criterios ? `Additional user criteria: ${criterios}` : ""}

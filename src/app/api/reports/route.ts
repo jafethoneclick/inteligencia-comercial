@@ -9,7 +9,7 @@ type RequestBody = {
 
 const TITULOS: Record<"proveedores" | "clientes", string> = {
   proveedores: "Suppliers",
-  clientes: "Potential Customers",
+  clientes: "Potential Customers (Baseball)",
 };
 
 export async function POST(request: Request) {

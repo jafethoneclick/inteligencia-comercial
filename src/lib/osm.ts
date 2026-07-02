@@ -14,14 +14,12 @@ import type { CompanyCandidate } from "@/lib/validation";
 
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 
-const TAGS_CLIENTES: readonly (readonly [string, string])[] = [
-  ["shop", "sports"],
-  ["shop", "outdoor"],
-  ["leisure", "fitness_centre"],
-  ["leisure", "sports_centre"],
-  ["leisure", "pitch"], // campos/canchas deportivas
-  ["club", "sport"], // incluye la mayoría de academias deportivas registradas como club
-];
+// "clientes" está enfocado solo a béisbol: en vez de filtrar por tipo de
+// lugar (leisure=pitch, club=sport, etc.), se filtra directo por
+// sport=baseball — ese tag lo llevan campos, clubes, centros deportivos y
+// tiendas ya etiquetados como de béisbol específicamente, sin importar cuál
+// sea su tag principal.
+const TAGS_CLIENTES: readonly (readonly [string, string])[] = [["sport", "baseball"]];
 
 const TAGS_PROVEEDORES: readonly (readonly [string, string])[] = [
   ["shop", "wholesale"],
@@ -109,7 +107,8 @@ function elementToCandidate(el: OverpassElement, estado: string): CompanyCandida
   const empresa = tags.name;
   if (!empresa) return null; // sin nombre, no sirve como candidato
 
-  const categoria = tags.shop ?? tags.leisure ?? tags.club ?? tags.office ?? "";
+  const tipoLugar = tags.shop ?? tags.leisure ?? tags.club ?? tags.office ?? "";
+  const categoria = tags.sport ? (tipoLugar ? `${tipoLugar} (${tags.sport})` : tags.sport) : tipoLugar;
   const direccion = buildDireccion(tags);
 
   return {

@@ -2,11 +2,11 @@ import { getJson } from "@/lib/http";
 import type { CompanyCandidate } from "@/lib/validation";
 
 /**
- * Complementa la búsqueda de clientes potenciales (tiendas, gimnasios,
- * clubes) con datos reales de Yelp: dirección exacta y teléfono verificado,
- * cosa que la búsqueda con IA no siempre consigue. Solo aplica a
- * "clientes", no a proveedores/mayoristas (Yelp es un directorio de
- * consumo, no B2B).
+ * Complementa la búsqueda de clientes potenciales (enfocada solo a
+ * béisbol: academias, ligas/torneos, canchas) con datos reales de Yelp:
+ * dirección exacta y teléfono verificado, cosa que la búsqueda con IA no
+ * siempre consigue. Solo aplica a "clientes", no a proveedores/mayoristas
+ * (Yelp es un directorio de consumo, no B2B).
  *
  * La API de búsqueda de Yelp centra la búsqueda en un punto + radio (no
  * permite buscar "todo el estado" de una vez), así que se aproxima
@@ -21,10 +21,12 @@ const CIUDADES_POR_ESTADO: Record<string, string[]> = {
   CA: ["Los Angeles, CA", "San Diego, CA", "San Francisco, CA", "Sacramento, CA", "San Jose, CA"],
 };
 
-// "trainers" cubre academias/escuelas de entrenamiento deportivo, y
-// "leisure_centers" cubre complejos y campos deportivos — ambos categorías
-// oficiales de la taxonomía de Yelp (yelp.com/developers/documentation).
-const CATEGORIAS = "sportgoods,gyms,sportsclubs,trainers,leisure_centers";
+// Categorías amplias (deporte/entrenamiento/complejos) + "battingcages"
+// (Batting Cages, categoría oficial de Yelp) para cubrir instalaciones de
+// bateo. El filtro real de "solo béisbol" lo hace TERM_BUSQUEDA abajo
+// (Yelp permite combinar categories + term en la misma búsqueda).
+const CATEGORIAS = "sportgoods,gyms,sportsclubs,trainers,leisure_centers,battingcages";
+const TERM_BUSQUEDA = "baseball";
 const YELP_MAX_POR_LLAMADA = 10;
 
 type YelpBusiness = {
@@ -46,7 +48,7 @@ async function searchYelpForLocation(
 
   const url = `https://api.yelp.com/v3/businesses/search?location=${encodeURIComponent(
     location
-  )}&categories=${CATEGORIAS}&limit=${limit}`;
+  )}&categories=${CATEGORIAS}&term=${encodeURIComponent(TERM_BUSQUEDA)}&limit=${limit}`;
 
   const { status, text } = await getJson(url, { Authorization: `Bearer ${apiKey}` });
 

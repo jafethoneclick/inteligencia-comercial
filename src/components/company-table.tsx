@@ -32,7 +32,7 @@ export function CompanyTable({
             Suppliers ({proveedores.length})
           </TabButton>
           <TabButton active={tab === "clientes"} onClick={() => setTab("clientes")}>
-            Potential customers ({clientes.length})
+            Potential customers – baseball ({clientes.length})
           </TabButton>
         </div>
         <input

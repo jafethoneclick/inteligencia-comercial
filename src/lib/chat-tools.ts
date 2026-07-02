@@ -14,7 +14,8 @@ export const consultarEmpresasSchema = {
     tipo: {
       type: "string",
       enum: ["proveedores", "clientes"],
-      description: "Qué tabla consultar: proveedores o clientes potenciales.",
+      description:
+        "Qué tabla consultar: proveedores (artículos deportivos en general) o clientes potenciales (enfocado solo a béisbol: academias, ligas, torneos, canchas).",
     },
     estado: {
       type: "string",
@@ -31,7 +32,7 @@ export const consultarEmpresasSchema = {
 };
 
 export const CHAT_TOOLS_DESCRIPTION =
-  "Busca proveedores o clientes potenciales de artículos deportivos ya guardados en la base de datos (Google Sheets), con filtros opcionales por estado y texto libre.";
+  "Busca proveedores de artículos deportivos en general, o clientes potenciales (enfocado solo a béisbol: academias, ligas, torneos, canchas) ya guardados en la base de datos (Google Sheets), con filtros opcionales por estado y texto libre.";
 
 type ConsultarEmpresasArgs = {
   tipo: "proveedores" | "clientes";
@@ -99,7 +100,8 @@ export const buscarNuevasEmpresasSchema = {
     tipo: {
       type: "string",
       enum: ["proveedores", "clientes"],
-      description: "Qué tipo de empresa buscar: proveedores o clientes potenciales.",
+      description:
+        "Qué tipo de empresa buscar: proveedores (artículos deportivos en general) o clientes potenciales (solo béisbol: academias, ligas, torneos, canchas).",
     },
     estados: {
       type: "array",

@@ -29,6 +29,13 @@ texto plano en este chat en algún momento. Antes de ir a producción, rotarla
 (generar una nueva clave para la cuenta de servicio en GCP Console y borrar la
 vieja) y usar la nueva tanto en `.env.local` como en Vercel.
 
+**Nota sobre alcance:** "proveedores" cubre artículos deportivos en general.
+"Clientes potenciales" está enfocado únicamente a **béisbol** (academias,
+ligas/torneos, canchas, equipos) — es una decisión de negocio, no una
+limitación técnica. Esto aplica en las 3 fuentes (prompt de la IA en
+`research.ts`, tag `sport=baseball` en `osm.ts`, y `term=baseball` en
+`yelp.ts`) y también a la corrida automática cada 3 días.
+
 ### 1a. Proveedor de investigación (Groq ↔ Anthropic)
 
 `src/lib/research.ts` elige el proveedor automáticamente: si `GROQ_API_KEY`

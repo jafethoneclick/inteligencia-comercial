@@ -60,7 +60,7 @@ export function ReportForm() {
         >
           <option value="ambos">Suppliers and customers</option>
           <option value="proveedores">Suppliers only</option>
-          <option value="clientes">Potential customers only</option>
+          <option value="clientes">Potential customers only (baseball)</option>
         </select>
 
         <div className="flex gap-2">

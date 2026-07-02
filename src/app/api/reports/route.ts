@@ -8,8 +8,8 @@ type RequestBody = {
 };
 
 const TITULOS: Record<"proveedores" | "clientes", string> = {
-  proveedores: "Proveedores",
-  clientes: "Clientes Potenciales",
+  proveedores: "Suppliers",
+  clientes: "Potential Customers",
 };
 
 export async function POST(request: Request) {
@@ -18,12 +18,12 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Body inválido, se espera JSON." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid body, JSON expected." }, { status: 400 });
   }
 
   if (!["proveedores", "clientes", "ambos"].includes(body.tipo)) {
     return NextResponse.json(
-      { ok: false, error: 'tipo debe ser "proveedores", "clientes" o "ambos"' },
+      { ok: false, error: 'tipo must be "proveedores", "clientes", or "ambos"' },
       { status: 400 }
     );
   }
@@ -46,17 +46,17 @@ export async function POST(request: Request) {
     }
 
     const subtitulo = `${
-      body.tipo === "ambos" ? "Proveedores y clientes potenciales" : TITULOS[body.tipo as "proveedores" | "clientes"]
+      body.tipo === "ambos" ? "Suppliers and potential customers" : TITULOS[body.tipo as "proveedores" | "clientes"]
     } · ${estadosFiltro ? estadosFiltro.join(", ") : "TX, FL, CA"}`;
 
     const pdfBuffer = await generateReportPdf({
-      titulo: "Inteligencia Comercial — Artículos Deportivos",
+      titulo: "Commercial Intelligence — Sporting Goods",
       subtitulo,
       secciones,
     });
 
     const ahora = new Date();
-    const titulo = `Reporte ${subtitulo} — ${ahora.toLocaleDateString("es-US")}`;
+    const titulo = `Report ${subtitulo} — ${ahora.toLocaleDateString("en-US")}`;
 
     await appendRow(SHEET_TABS.reportes, {
       date: ahora.toISOString(),
@@ -69,11 +69,11 @@ export async function POST(request: Request) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="reporte-${ahora.toISOString().slice(0, 10)}.pdf"`,
+        "Content-Disposition": `attachment; filename="report-${ahora.toISOString().slice(0, 10)}.pdf"`,
       },
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error desconocido";
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

@@ -50,14 +50,14 @@ function contarPorEstado(filas: Record<string, string>[]): Record<string, number
 }
 
 function ReportDocument({ titulo, subtitulo, secciones }: ReportParams) {
-  const generadoEl = new Date().toLocaleString("es-US", { dateStyle: "long", timeStyle: "short" });
+  const generadoEl = new Date().toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" });
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <Text style={styles.h1}>{titulo}</Text>
         <Text style={styles.subtitulo}>{subtitulo}</Text>
-        <Text style={styles.fecha}>Generado: {generadoEl}</Text>
+        <Text style={styles.fecha}>Generated: {generadoEl}</Text>
 
         {secciones.map((seccion, i) => {
           const conteo = contarPorEstado(seccion.filas);
@@ -71,17 +71,17 @@ function ReportDocument({ titulo, subtitulo, secciones }: ReportParams) {
               <Text style={styles.resumen}>{resumenTexto}</Text>
               <View style={styles.table}>
                 <View style={styles.headerRow}>
-                  <Text style={[styles.cellEmpresa, styles.headerCell]}>Empresa</Text>
-                  <Text style={[styles.cellEstado, styles.headerCell]}>Estado</Text>
-                  <Text style={[styles.cellWeb, styles.headerCell]}>Sitio web</Text>
+                  <Text style={[styles.cellEmpresa, styles.headerCell]}>Company</Text>
+                  <Text style={[styles.cellEstado, styles.headerCell]}>State</Text>
+                  <Text style={[styles.cellWeb, styles.headerCell]}>Website</Text>
                   <Text style={[styles.cellEmail, styles.headerCell]}>Email</Text>
-                  <Text style={[styles.cellTelefono, styles.headerCell]}>Teléfono</Text>
-                  <Text style={[styles.cellCategoria, styles.headerCell]}>Categoría</Text>
-                  <Text style={[styles.cellFuente, styles.headerCell]}>Fuente</Text>
+                  <Text style={[styles.cellTelefono, styles.headerCell]}>Phone</Text>
+                  <Text style={[styles.cellCategoria, styles.headerCell]}>Category</Text>
+                  <Text style={[styles.cellFuente, styles.headerCell]}>Source</Text>
                 </View>
 
                 {seccion.filas.length === 0 ? (
-                  <Text style={styles.empty}>No hay empresas registradas todavía.</Text>
+                  <Text style={styles.empty}>No companies registered yet.</Text>
                 ) : (
                   seccion.filas.map((fila, j) => (
                     <View key={j} style={styles.row}>

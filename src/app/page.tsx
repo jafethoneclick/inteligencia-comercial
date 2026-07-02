@@ -26,17 +26,17 @@ export default async function Home() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-10">
         <header className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Inteligencia Comercial — Artículos Deportivos
+            Commercial Intelligence — Sporting Goods
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Proveedores y clientes potenciales en Texas, Florida y California, sincronizados
-            con Google Sheets.
+            Suppliers and potential customers in Texas, Florida, and California, synced with
+            Google Sheets.
           </p>
         </header>
 
         {error ? (
           <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
-            No se pudo conectar con Google Sheets: {error}
+            Could not connect to Google Sheets: {error}
           </div>
         ) : (
           <>

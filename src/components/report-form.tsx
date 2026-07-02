@@ -35,13 +35,13 @@ export function ReportForm() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `reporte-${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.download = `report-${new Date().toISOString().slice(0, 10)}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error de red");
+      setError(err instanceof Error ? err.message : "Network error");
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export function ReportForm() {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
       <h2 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-        Reporte profesional (PDF)
+        Professional report (PDF)
       </h2>
       <div className="flex flex-wrap items-center gap-3">
         <select
@@ -58,9 +58,9 @@ export function ReportForm() {
           onChange={(e) => setTipo(e.target.value as "proveedores" | "clientes" | "ambos")}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
         >
-          <option value="ambos">Proveedores y clientes</option>
-          <option value="proveedores">Solo proveedores</option>
-          <option value="clientes">Solo clientes potenciales</option>
+          <option value="ambos">Suppliers and customers</option>
+          <option value="proveedores">Suppliers only</option>
+          <option value="clientes">Potential customers only</option>
         </select>
 
         <div className="flex gap-2">
@@ -90,7 +90,7 @@ export function ReportForm() {
           disabled={loading || estados.length === 0}
           className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
         >
-          {loading ? "Generando..." : "Generar reporte PDF"}
+          {loading ? "Generating..." : "Generate PDF report"}
         </button>
       </div>
 

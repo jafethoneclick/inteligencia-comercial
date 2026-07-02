@@ -13,18 +13,18 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Body inválido, se espera JSON." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid body, JSON expected." }, { status: 400 });
   }
 
   if (!Array.isArray(body.messages) || body.messages.length === 0) {
-    return NextResponse.json({ ok: false, error: "Falta 'messages' (array no vacío)." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Missing 'messages' (non-empty array)." }, { status: 400 });
   }
 
   try {
     const reply = await getChatReply(body.messages);
     return NextResponse.json({ ok: true, reply });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error desconocido";
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

@@ -29,15 +29,15 @@ export function CompanyTable({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
           <TabButton active={tab === "proveedores"} onClick={() => setTab("proveedores")}>
-            Proveedores ({proveedores.length})
+            Suppliers ({proveedores.length})
           </TabButton>
           <TabButton active={tab === "clientes"} onClick={() => setTab("clientes")}>
-            Clientes potenciales ({clientes.length})
+            Potential customers ({clientes.length})
           </TabButton>
         </div>
         <input
           type="text"
-          placeholder="Buscar por nombre, estado, email..."
+          placeholder="Search by name, state, email..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full max-w-xs rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900"
@@ -48,25 +48,24 @@ export function CompanyTable({
         <table className="w-full min-w-[900px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50 text-left dark:border-zinc-800 dark:bg-zinc-900">
-              <Th>Empresa</Th>
-              <Th>Estado</Th>
-              <Th>Sitio web</Th>
+              <Th>Company</Th>
+              <Th>State</Th>
+              <Th>Website</Th>
               <Th>Email</Th>
-              <Th>Teléfono</Th>
-              <Th>Redes sociales</Th>
-              <Th>Categoría</Th>
-              <Th>Dirección</Th>
-              <Th>Fuente</Th>
-              <Th>Última actualización</Th>
-              <Th>Mapa</Th>
+              <Th>Phone</Th>
+              <Th>Social media</Th>
+              <Th>Category</Th>
+              <Th>Address</Th>
+              <Th>Source</Th>
+              <Th>Last updated</Th>
+              <Th>Map</Th>
             </tr>
           </thead>
           <tbody>
             {filteredRows.length === 0 ? (
               <tr>
                 <td colSpan={11} className="px-4 py-8 text-center text-zinc-500">
-                  No hay empresas todavía. Corre una búsqueda manual para empezar a llenar
-                  esta lista.
+                  No companies yet. Run a manual search to start filling this list.
                 </td>
               </tr>
             ) : (
@@ -106,7 +105,7 @@ export function CompanyTable({
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline dark:text-blue-400"
                       >
-                        Ver en Maps
+                        View on Maps
                       </a>
                     ) : (
                       "-"

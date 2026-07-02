@@ -43,7 +43,7 @@ export function ResearchForm() {
       setResult(data);
       if (data.ok) router.refresh();
     } catch (err) {
-      setResult({ ok: false, error: err instanceof Error ? err.message : "Error de red" });
+      setResult({ ok: false, error: err instanceof Error ? err.message : "Network error" });
     } finally {
       setLoading(false);
     }
@@ -52,7 +52,7 @@ export function ResearchForm() {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
       <h2 className="mb-3 text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-        Búsqueda manual
+        Manual search
       </h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">
@@ -61,8 +61,8 @@ export function ResearchForm() {
             onChange={(e) => setTipo(e.target.value as "proveedores" | "clientes")}
             className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           >
-            <option value="proveedores">Proveedores</option>
-            <option value="clientes">Clientes potenciales</option>
+            <option value="proveedores">Suppliers</option>
+            <option value="clientes">Potential customers</option>
           </select>
 
           <div className="flex gap-2">
@@ -93,13 +93,13 @@ export function ResearchForm() {
             value={cantidad}
             onChange={(e) => setCantidad(Number(e.target.value))}
             className="w-24 rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            title="Cantidad de empresas a buscar (valores altos tardan más)"
+            title="Number of companies to search (higher values take longer)"
           />
         </div>
 
         <input
           type="text"
-          placeholder='Criterio opcional, ej. "fabricantes de balones de fútbol"'
+          placeholder='Optional criteria, e.g. "soccer ball manufacturers"'
           value={criterios}
           onChange={(e) => setCriterios(e.target.value)}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
@@ -110,7 +110,7 @@ export function ResearchForm() {
           disabled={loading || estados.length === 0}
           className="self-start rounded-full bg-black px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
         >
-          {loading ? "Buscando... (puede tardar unos minutos)" : "Buscar ahora"}
+          {loading ? "Searching... (this can take a few minutes)" : "Search now"}
         </button>
       </form>
 
@@ -124,11 +124,11 @@ export function ResearchForm() {
         >
           {result.ok ? (
             <>
-              Encontradas {result.totalEncontrados} · Nuevas: {result.nuevos} · Actualizadas:{" "}
+              Found {result.totalEncontrados} · New: {result.nuevos} · Updated:{" "}
               {result.actualizados}
               {result.invalidos && result.invalidos.length > 0 && (
                 <div className="mt-1 text-xs opacity-80">
-                  Descartadas por validación: {result.invalidos.map((i) => i.company).join(", ")}
+                  Discarded during validation: {result.invalidos.map((i) => i.company).join(", ")}
                 </div>
               )}
             </>

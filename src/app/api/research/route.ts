@@ -19,12 +19,12 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Body inválido, se espera JSON." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Invalid body, JSON expected." }, { status: 400 });
   }
 
   if (body.tipo !== "proveedores" && body.tipo !== "clientes") {
     return NextResponse.json(
-      { ok: false, error: 'tipo debe ser "proveedores" o "clientes"' },
+      { ok: false, error: 'tipo must be "proveedores" or "clientes"' },
       { status: 400 }
     );
   }
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     const result = await runResearchPipeline(params, "manual");
     return NextResponse.json(result);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Error desconocido";
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

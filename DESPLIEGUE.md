@@ -85,8 +85,9 @@ Detalles a tener en cuenta:
 - La API de búsqueda de Yelp centra la búsqueda en un punto geográfico + un
   radio (no permite buscar "todo el estado" de una vez), así que se
   aproxima cubriendo varias ciudades grandes por estado como anclas
-  (`CIUDADES_POR_ESTADO`: 6 para TX, 5 para FL, 5 para CA). Con una sola
-  ciudad por estado, correr la búsqueda varias veces solo volvía a
+  (`CIUDADES_POR_ESTADO`: 25 para TX —mercado principal—, 5 para FL, 5 para
+  CA). Con una sola ciudad por estado, correr la búsqueda varias veces solo
+  volvía a
   encontrar los mismos negocios ya guardados (se agotaba rápido el radio de
   una sola ciudad); con varias ciudades el universo de negocios
   encontrables es mucho más amplio. Sigue sin ser "todo el estado" — es una
@@ -175,10 +176,12 @@ se mapearon en OSM — llenando el hueco que OSM deja en proveedores.
 - Opcional: solo corre si `SERPAPI_API_KEY` está definida. Si no, el
   pipeline sigue funcionando igual con IA + OSM.
 - Igual que Yelp, cubre varias ciudades por estado (`CIUDADES_POR_ESTADO`
-  en `serpapi.ts`), pero con una lista más corta (3 por estado en vez de
-  5-6): SerpApi solo da **250 búsquedas gratis/mes** (vs. Yelp, que da
-  500/día), así que cada ciudad extra consume cuota real. Si el uso crece,
-  ajustar esta lista es el primer lugar donde recortar.
+  en `serpapi.ts`): 12 para TX (mercado principal), 3 para FL, 3 para CA.
+  SerpApi solo da **250 búsquedas gratis/mes** (vs. Yelp, que da 500/día),
+  así que la lista de TX se calculó para que el cron (cada 3 días, ~10
+  corridas/mes) más FL/CA usen ~180 de las 250 búsquedas/mes, dejando
+  margen para búsquedas manuales. Si se contrata un plan pago de SerpApi,
+  esta lista puede ampliarse hasta igualar la de Yelp (25 ciudades).
 - Igual que Yelp, no da `email` ni `sitio_web` (confirmado probando en
   vivo: el endpoint de Google Local no incluye el sitio propio del
   negocio) — solo nombre, dirección, categoría y teléfono. `validation.ts`

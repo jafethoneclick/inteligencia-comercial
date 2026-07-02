@@ -15,8 +15,18 @@ import type { CompanyCandidate } from "@/lib/validation";
  * ese radio, y correr la búsqueda de nuevo solo vuelve a encontrar los
  * mismos negocios ya guardados en vez de aportar nuevos.
  */
+// TX tiene una lista mucho más larga a propósito — es el mercado principal
+// del negocio, y Yelp es gratis hasta 500 llamadas/día, así que no hay
+// motivo para ser conservador aquí (25 ciudades por corrida de "clientes"
+// caben sin problema en esa cuota).
 const CIUDADES_POR_ESTADO: Record<string, string[]> = {
-  TX: ["Houston, TX", "Dallas, TX", "Austin, TX", "San Antonio, TX", "Fort Worth, TX", "El Paso, TX"],
+  TX: [
+    "Houston, TX", "San Antonio, TX", "Dallas, TX", "Austin, TX", "Fort Worth, TX",
+    "El Paso, TX", "Arlington, TX", "Corpus Christi, TX", "Plano, TX", "Laredo, TX",
+    "Lubbock, TX", "Garland, TX", "Irving, TX", "Amarillo, TX", "Grand Prairie, TX",
+    "Brownsville, TX", "McKinney, TX", "Frisco, TX", "Pasadena, TX", "Killeen, TX",
+    "McAllen, TX", "Mesquite, TX", "Midland, TX", "Waco, TX", "Denton, TX",
+  ],
   FL: ["Miami, FL", "Orlando, FL", "Tampa, FL", "Jacksonville, FL", "Fort Lauderdale, FL"],
   CA: ["Los Angeles, CA", "San Diego, CA", "San Francisco, CA", "Sacramento, CA", "San Jose, CA"],
 };

@@ -14,8 +14,19 @@ import type { CompanyCandidate } from "@/lib/validation";
  * con una lista más corta: SerpApi solo da 250 búsquedas gratis/mes (vs.
  * Yelp, que da 500/día), así que cada ciudad extra cuesta cuota real.
  */
+// TX tiene una lista más larga que FL/CA (mercado principal), pero se
+// mantiene en 12 —no 25 como yelp.ts— porque cada ciudad extra cuesta
+// cuota real de SerpApi (250/mes). Con el cron corriendo cada 3 días
+// (~10 veces/mes) más FL(3) y CA(3), 12 ciudades en TX ya usa ~180 de las
+// 250 búsquedas/mes, dejando margen para búsquedas manuales. Si se
+// contrata un plan pago de SerpApi, esta lista puede ampliarse hasta
+// igualar la de yelp.ts sin este límite.
 const CIUDADES_POR_ESTADO: Record<string, string[]> = {
-  TX: ["Houston, TX", "Dallas, TX", "Austin, TX"],
+  TX: [
+    "Houston, TX", "San Antonio, TX", "Dallas, TX", "Austin, TX", "Fort Worth, TX",
+    "El Paso, TX", "Corpus Christi, TX", "Plano, TX", "Laredo, TX", "Lubbock, TX",
+    "McAllen, TX", "Amarillo, TX",
+  ],
   FL: ["Miami, FL", "Orlando, FL", "Tampa, FL"],
   CA: ["Los Angeles, CA", "San Diego, CA", "San Francisco, CA"],
 };

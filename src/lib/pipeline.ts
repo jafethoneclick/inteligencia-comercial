@@ -26,11 +26,18 @@ export type PipelineResult = {
 
 // La IA (Groq/Anthropic) nunca debe recibir un `cantidad` más grande que
 // esto, sin importar qué tan grande sea params.cantidad — cada llamada a
-// Groq cuesta cuota y tiempo (ver GROQ_MAX_POR_LLAMADA en research.ts), y a
-// diferencia de OSM no puede escalar a cientos/miles de resultados sin
-// agotar la cuota gratuita o el maxDuration. El volumen grande lo aporta
-// OSM (ver searchOsmCompanies abajo), no la IA.
-const AI_CANTIDAD_MAX = 20;
+// Groq cuesta cuota y tiempo, y a diferencia de OSM no puede escalar a
+// cientos/miles de resultados sin agotar la cuota gratuita o el
+// maxDuration. El volumen grande lo aporta OSM/Yelp/SerpApi, no la IA.
+//
+// OJO: con Groq este número en la práctica no tiene efecto por sí solo —
+// researchWithGroq (research.ts) hace UNA llamada por estado, capada aparte
+// a GROQ_MAX_POR_LLAMADA=4 (el modelo "compound" trunca la respuesta si se
+// le pide más). O sea, con Groq el techo real sigue siendo ~4 por estado
+// sin importar qué tan alto esté AI_CANTIDAD_MAX. Este número solo cobra
+// sentido completo si se cambia a ANTHROPIC_API_KEY (researchWithAnthropic
+// sí hace una sola llamada pidiendo hasta este total).
+const AI_CANTIDAD_MAX = 200;
 
 const VALIDATION_CONCURRENCY = 15;
 

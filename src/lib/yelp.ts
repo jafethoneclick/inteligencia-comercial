@@ -37,7 +37,18 @@ const CIUDADES_POR_ESTADO: Record<string, string[]> = {
 // (Yelp permite combinar categories + term en la misma búsqueda).
 const CATEGORIAS = "sportgoods,gyms,sportsclubs,trainers,leisure_centers,battingcages";
 const TERM_BUSQUEDA = "baseball";
-const YELP_MAX_POR_LLAMADA = 10;
+
+// Ventana fija por ciudad, independiente de la `cantidad` pedida. Antes se
+// pedían solo ceil(cantidad/ciudades) negocios por ciudad SIN offset, y Yelp
+// devuelve siempre los mismos primeros N — tras la primera corrida todos
+// estaban ya guardados y ninguna corrida volvía a aportar nuevos. Ahora se
+// pagina con offset hasta agotar los resultados de la ciudad (o llegar al
+// tope), y el deduplicador + el tope de nuevos del pipeline se encargan de
+// que al Sheet solo entre lo que haga falta. Costo: máx 3 llamadas por
+// ciudad → 35 ciudades ≈ 105 llamadas por corrida, holgado dentro de la
+// cuota gratuita de 500/día.
+const YELP_LIMIT_POR_LLAMADA = 50; // máximo que acepta la API por llamada
+const YELP_MAX_POR_CIUDAD = 150;
 
 type YelpBusiness = {
   name: string;
@@ -48,26 +59,30 @@ type YelpBusiness = {
   categories?: { title: string }[];
 };
 
-async function searchYelpForLocation(
-  estado: string,
-  location: string,
-  cantidad: number
-): Promise<CompanyCandidate[]> {
+async function searchYelpForLocation(estado: string, location: string): Promise<CompanyCandidate[]> {
   const apiKey = process.env.YELP_API_KEY;
-  const limit = Math.max(1, Math.min(YELP_MAX_POR_LLAMADA, cantidad));
+  const businesses: YelpBusiness[] = [];
 
-  const url = `https://api.yelp.com/v3/businesses/search?location=${encodeURIComponent(
-    location
-  )}&categories=${CATEGORIAS}&term=${encodeURIComponent(TERM_BUSQUEDA)}&limit=${limit}`;
+  for (let offset = 0; offset < YELP_MAX_POR_CIUDAD; offset += YELP_LIMIT_POR_LLAMADA) {
+    const url = `https://api.yelp.com/v3/businesses/search?location=${encodeURIComponent(
+      location
+    )}&categories=${CATEGORIAS}&term=${encodeURIComponent(
+      TERM_BUSQUEDA
+    )}&limit=${YELP_LIMIT_POR_LLAMADA}&offset=${offset}`;
 
-  const { status, text } = await getJson(url, { Authorization: `Bearer ${apiKey}` });
+    const { status, text } = await getJson(url, { Authorization: `Bearer ${apiKey}` });
 
-  if (status < 200 || status >= 300) {
-    throw new Error(`Yelp API error ${status}: ${text.slice(0, 500)}`);
+    if (status < 200 || status >= 300) {
+      throw new Error(`Yelp API error ${status}: ${text.slice(0, 500)}`);
+    }
+
+    const data = JSON.parse(text);
+    const page: YelpBusiness[] = data.businesses ?? [];
+    businesses.push(...page);
+
+    // Página incompleta = ya no hay más resultados en esta ciudad.
+    if (page.length < YELP_LIMIT_POR_LLAMADA) break;
   }
-
-  const data = JSON.parse(text);
-  const businesses: YelpBusiness[] = data.businesses ?? [];
 
   return businesses.map((b) => ({
     company: b.name,
@@ -82,20 +97,15 @@ async function searchYelpForLocation(
   }));
 }
 
-export async function searchYelpClients(
-  estados: string[],
-  cantidadTotal: number
-): Promise<CompanyCandidate[]> {
-  const porEstado = Math.max(1, Math.ceil(cantidadTotal / estados.length));
+export async function searchYelpClients(estados: string[]): Promise<CompanyCandidate[]> {
   const resultados: CompanyCandidate[] = [];
 
   for (const estado of estados) {
     const ciudades = CIUDADES_POR_ESTADO[estado] ?? [`${estado}, USA`];
-    const porCiudad = Math.max(1, Math.ceil(porEstado / ciudades.length));
 
     for (const ciudad of ciudades) {
       try {
-        const encontrados = await searchYelpForLocation(estado, ciudad, porCiudad);
+        const encontrados = await searchYelpForLocation(estado, ciudad);
         resultados.push(...encontrados);
       } catch {
         // Yelp es un complemento; si falla para una ciudad, seguimos con las demás.

@@ -71,7 +71,7 @@ export async function runResearchPipeline(
     // resultados (los mayoristas B2B rara vez se mapean en OSM). Si falla,
     // no se pierde la corrida: se sigue con lo que ya se tenía.
     try {
-      const osmCandidates = await searchOsmCompanies(params.estados, params.tipo, params.cantidad ?? 8);
+      const osmCandidates = await searchOsmCompanies(params.estados, params.tipo);
       candidates.push(...osmCandidates);
     } catch {
       // OSM complementa, no bloquea.
@@ -97,7 +97,7 @@ export async function runResearchPipeline(
     // se pierde la corrida: se sigue solo con lo que ya se tenía.
     if (params.tipo === "clientes" && process.env.YELP_API_KEY) {
       try {
-        const yelpCandidates = await searchYelpClients(params.estados, params.cantidad ?? 8);
+        const yelpCandidates = await searchYelpClients(params.estados);
         candidates.push(...yelpCandidates);
       } catch {
         // se ignora: Yelp es un complemento, no una dependencia dura del pipeline
@@ -121,6 +121,23 @@ export async function runResearchPipeline(
       } else {
         validatedCandidates.push(candidate);
       }
+    }
+
+    // Las fuentes traen a propósito una ventana mucho más grande que la
+    // `cantidad` pedida (ver OSM_VENTANA_POR_ESTADO en osm.ts y
+    // YELP_MAX_POR_CIUDAD en yelp.ts): así siempre hay negocios aún no
+    // guardados entre los candidatos. Este tope es el que hace respetar la
+    // `cantidad` — sin él, una corrida podría insertar cientos de filas de
+    // golpe (indeseable sobre todo en la corrida automática sin supervisión).
+    const maxNuevos = params.cantidad ?? 8;
+
+    // Los candidatos llegan agrupados por fuente y por estado (toda la IA,
+    // luego todo OSM de TX, FL, CA, luego todo Yelp...). Sin mezclar, el
+    // tope de nuevos se llenaría siempre con la primera fuente/estado de la
+    // lista y el resto jamás aportaría. Fisher-Yates para repartir el cupo.
+    for (let i = validatedCandidates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [validatedCandidates[i], validatedCandidates[j]] = [validatedCandidates[j], validatedCandidates[i]];
     }
 
     // Filas nuevas de esta corrida ya aceptadas, para no comparar solo
@@ -165,6 +182,12 @@ export async function runResearchPipeline(
         // silenciosamente, no cuenta como nuevo ni como error.
         continue;
       }
+
+      // Cupo de nuevos lleno: se descarta sin registrar nada. El negocio
+      // volverá a aparecer en la ventana de una corrida futura y entrará
+      // cuando haya cupo. (Los duplicados de arriba sí se siguen
+      // procesando como actualizaciones aunque el cupo esté lleno.)
+      if (nuevos >= maxNuevos) continue;
 
       const record = {
         id: crypto.randomUUID(),

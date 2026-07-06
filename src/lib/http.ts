@@ -43,8 +43,19 @@ export function postJson(
   });
 }
 
-/** GET usando node:https, por la misma razón que postJson (ver arriba). */
-export function getJson(url: string, headers: Record<string, string>): Promise<{ status: number; text: string }> {
+/**
+ * GET usando node:https, por la misma razón que postJson (ver arriba).
+ *
+ * `timeoutMs` es opcional pero importante para servidores públicos poco
+ * confiables (ej. mirrors de Overpass): sin él, node:https espera
+ * indefinidamente a un servidor que acepta la conexión pero nunca
+ * responde, y eso deja colgada toda la corrida del pipeline.
+ */
+export function getJson(
+  url: string,
+  headers: Record<string, string>,
+  timeoutMs?: number
+): Promise<{ status: number; text: string }> {
   return new Promise((resolve, reject) => {
     const { hostname, pathname, search } = new URL(url);
 
@@ -58,6 +69,12 @@ export function getJson(url: string, headers: Record<string, string>): Promise<{
         );
       }
     );
+
+    if (timeoutMs) {
+      req.setTimeout(timeoutMs, () => {
+        req.destroy(new Error(`Timeout de ${timeoutMs}ms esperando a ${hostname}`));
+      });
+    }
 
     req.on("error", reject);
     req.end();
